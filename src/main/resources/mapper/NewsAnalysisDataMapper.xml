@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cmb.news.dao.NewsAnalysisDataMapper">
+    <resultMap id="BaseResultMap" type="com.cmb.news.model.NewsAnalysisData">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="created_time" jdbcType="TIMESTAMP" property="createdTime"/>
+        <result column="uid" jdbcType="INTEGER" property="uid"/>
+    </resultMap>
+    <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.cmb.news.model.NewsAnalysisData">
+        <result column="news_content" jdbcType="LONGVARCHAR" property="newsContent"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, created_time, uid
+  </sql>
+    <sql id="Blob_Column_List">
+    news_content
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+        select
+        <include refid="Base_Column_List"/>
+        ,
+        <include refid="Blob_Column_List"/>
+        from news_analysis_data
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from news_analysis_data
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.cmb.news.model.NewsAnalysisData">
+    insert into news_analysis_data (id, created_time, uid, 
+      news_content)
+    values (#{id,jdbcType=BIGINT}, #{createdTime,jdbcType=TIMESTAMP}, #{uid,jdbcType=INTEGER}, 
+      #{newsContent,jdbcType=LONGVARCHAR})
+  </insert>
+    <insert id="insertSelective" parameterType="com.cmb.news.model.NewsAnalysisData">
+        insert into news_analysis_data
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="createdTime != null">
+                created_time,
+            </if>
+            <if test="uid != null">
+                uid,
+            </if>
+            <if test="newsContent != null">
+                news_content,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="createdTime != null">
+                #{createdTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="uid != null">
+                #{uid,jdbcType=INTEGER},
+            </if>
+            <if test="newsContent != null">
+                #{newsContent,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.cmb.news.model.NewsAnalysisData">
+        update news_analysis_data
+        <set>
+            <if test="createdTime != null">
+                created_time = #{createdTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="uid != null">
+                uid = #{uid,jdbcType=INTEGER},
+            </if>
+            <if test="newsContent != null">
+                news_content = #{newsContent,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.cmb.news.model.NewsAnalysisData">
+    update news_analysis_data
+    set created_time = #{createdTime,jdbcType=TIMESTAMP},
+      uid = #{uid,jdbcType=INTEGER},
+      news_content = #{newsContent,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <update id="updateByPrimaryKey" parameterType="com.cmb.news.model.NewsAnalysisData">
+    update news_analysis_data
+    set created_time = #{createdTime,jdbcType=TIMESTAMP},
+      uid = #{uid,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+    <!-- 时间查询传参String -->
+    <select id="findIdsByTime" resultType="java.lang.Long"
+            parameterType="map">
+        select
+        id
+        from news_analysis_data
+        <where>
+            <if test="beginTime != null and beginTime !='' ">
+                created_time >= #{beginTime,jdbcType=VARCHAR}
+            </if>
+            <if test="endTime != null and endTime !='' ">
+                <![CDATA[and created_time <= concat(#{endTime,jdbcType=VARCHAR},'235959')]]>
+            </if>
+        </where>
+    </select>
+
+    <select id="findByIds" resultMap="ResultMapWithBLOBs" parameterType="java.util.List">
+        SELECT id,news_content,uid
+        FROM news_analysis_data
+        WHERE
+        id
+        IN
+        <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+    <insert id="insertBatch">
+        INSERT INTO news_analysis_data
+        (id, created_time, uid,news_content)
+        VALUES
+        <foreach collection="newsAnalysisData" item="news" separator=",">
+            (#{news.id,jdbcType=BIGINT}, #{news.createdTime,jdbcType=TIMESTAMP}, #{news.uid,jdbcType=INTEGER},
+            #{news.newsContent,jdbcType=LONGVARCHAR})
+        </foreach>
+    </insert>
+
+</mapper>

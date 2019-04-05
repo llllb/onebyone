@@ -1,0 +1,2 @@
+#查看锁状态
+show status like 'innodb_row_lock%';
